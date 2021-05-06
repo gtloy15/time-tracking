@@ -4,15 +4,19 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support import expected_conditions as EC
-import time
+import time, glob, os
 import pandas as PD
 
+files = glob.glob("C:/Users/[MODIFY THIS WITH YOUR MACHINE USERNAME]/Downloads/Toggl_time_entries*.csv")
+files.sort(key=os.path.getmtime, reverse = True)
+print(files[0])
+
 columns = ['Description', 'Start date', 'Duration', 'Tags']
-source_info = PD.read_csv('time-worked.csv', usecols = columns)
+source_info = PD.read_csv(files[0], usecols = columns)
 source_info.rename(columns={'Start date': 'Date'}, inplace=True)
 
 url = r'https://liberty.service-now.com/task_time_worked.do?sys_id=-1&sysparm_stack=task_time_worked_list.do'
-path = r'C:\dev\drivers\microsoft-edge-driver\msedgedriver.exe'
+path = r'C:\[PATH TO YOU SELENIUM BROWSER DRIVER]'
 
 browser = webdriver.Edge(path)
 browser.get(url)
@@ -33,12 +37,14 @@ def fill_form(description, date, duration, tags):
     submit = browser.find_element_by_id('sysverb_insert_bottom')
     #input data
     in_task.clear()
-    if (tags == 'pd'):
-        in_category.select_by_index(2)
-    elif (tags == 'ooo'):
+    if (tags == 'ooo'):
         in_category.select_by_index(1)
+    elif (tags == 'pd'):
+        in_category.select_by_index(2)
     elif (tags == 'conv'):
         in_category.select_by_index(3)
+    elif (tags == 'cler'):
+        in_category.select_by_index(4)
     else:
         in_task.send_keys(tags)
     time.sleep(1)
@@ -46,10 +52,10 @@ def fill_form(description, date, duration, tags):
     in_date.send_keys(date)
     time.sleep(1)
     in_time_hours.clear()
-    in_time_hours.send_keys(duration[0])
+    in_time_hours.send_keys(duration[0:2])
     time.sleep(1)
     in_time_min.clear()
-    in_time_min.send_keys(duration[2:4])
+    in_time_min.send_keys(duration[3:5])
     time.sleep(1)
     in_comments.clear()
     in_comments.send_keys(description)
