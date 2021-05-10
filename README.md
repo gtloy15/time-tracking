@@ -8,6 +8,6 @@ Pre-launch steps:
 
 
 Config.ini keys:
-Username = {Windows username}
-Browser = {Preferred browser. Can be one of the following: Chrome, Safari, Edge, Firefox}
-BrowserDriverPath = {Local directory path where you installed your browser's driver}
+1. Username = {Windows username}
+2. Browser = {Preferred browser. Can be one of the following: Chrome, Safari, Edge, Firefox}
+3. BrowserDriverPath = {Local directory path where you installed your browser's driver}
