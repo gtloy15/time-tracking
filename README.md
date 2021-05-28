@@ -11,3 +11,6 @@ Config.ini keys:
 1. Username = {Windows username}
 2. Browser = {Preferred browser. Can be one of the following: Chrome, Safari, Edge, Firefox}
 3. BrowserDriverPath = {Local directory path where you installed your browser's driver}
+4. TogglApiToken = {API token for Toggl found in account settings}
+5. TogglEmail = {Email address used to sign into Toggl}
+6. TogglWorkspaceId = {No longer needed}
