@@ -14,3 +14,7 @@ Config.ini keys:
 4. TogglApiToken = {API token for Toggl found in account settings}
 5. TogglEmail = {Email address used to sign into Toggl}
 6. TogglWorkspaceId = {No longer needed}
+
+
+External API link: https://github.com/matthewdowney/TogglPy
+Toggl API: https://github.com/toggl/toggl_api_docs
