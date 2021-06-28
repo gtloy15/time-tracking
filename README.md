@@ -13,3 +13,6 @@ Config.ini keys:
 3. BrowserDriverPath = {Local directory path where you installed your browser's driver}
 4. TogglApiKey = {API token for Toggl found in account settings}
 5. TogglEmail = {Email address used to sign into Toggl}
+
+External API link: https://github.com/matthewdowney/TogglPy
+Toggl API: https://github.com/toggl/toggl_api_docs
