@@ -6,7 +6,14 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support import expected_conditions as EC
 from urllib.request import urlopen, Request
-import time, configparser, sys, json, pprint
+import time, glob, os, configparser, sys, json, pprint
+import pandas as PD
+
+#Determine whether to run from the API or downloaded report based on the existence of a runtime argument
+if (1 < len(sys.argv)):
+    runFromReport = True
+else:
+    runFromReport = False
 
 #Generate ConfigParser to read inputs from config.ini file
 config = configparser.ConfigParser()
@@ -25,7 +32,26 @@ urls = {
 }
 
 #Generate source info from Toggl
-source_info = toggl.request(urls['source_info'])['data']
+def getSourceInfoFromApi():
+    source_info = toggl.request(urls['source_info'])['data']
+    return source_info
+
+#Generate source info from downloaded report
+def getSourceInfoFromReport():
+    files = glob.glob("C:/Users/" + config['DEFAULT']['Username'] + "/Downloads/Toggl_time_entries*.csv")
+    files.sort(key=os.path.getmtime, reverse = True)
+    print(files[0])
+
+    columns = ['Description', 'Start date', 'Duration', 'Tags']
+    source_info = PD.read_csv(files[0], usecols = columns)
+    source_info.rename(columns={'Start date': 'Date'}, inplace=True)
+    return source_info
+
+#Determine which function to use to get the source info
+if (runFromReport):
+    source_info = getSourceInfoFromReport()
+else:
+    source_info = getSourceInfoFromApi()
 
 #Initialize Selenium browser based on config.ini browser preference
 if (config['DEFAULT']['Browser'] == 'Edge'):
@@ -73,21 +99,36 @@ def fill_form(description, date, duration, tags):
         time.sleep(1)
 
         #Input date data
-        in_date.clear()
-        in_date.send_keys(date[0:10])
-        time.sleep(1)
+        if (runFromReport):
+            in_date.clear()
+            in_date.send_keys(date)
+            time.sleep(1)
+        else:
+            in_date.clear()
+            in_date.send_keys(date[0:10])
+            time.sleep(1)
 
         #Input hours
-        in_time_hours.clear()
-        hours = int(duration/1000/60/60)
-        in_time_hours.send_keys(hours)
-        time.sleep(1)
+        if (runFromReport):
+            in_time_hours.clear()
+            in_time_hours.send_keys(duration[0:2])
+            time.sleep(1)
+        else:
+            in_time_hours.clear()
+            hours = int(duration/1000/60/60)
+            in_time_hours.send_keys(hours)
+            time.sleep(1)
 
         #Input minutes
-        in_time_min.clear()
-        min = int(duration/1000/60%60)
-        in_time_min.send_keys(min)
-        time.sleep(1)
+        if (runFromReport):
+            in_time_min.clear()
+            in_time_min.send_keys(duration[3:5])
+            time.sleep(1)
+        else:
+            in_time_min.clear()
+            min = int(duration/1000/60%60)
+            in_time_min.send_keys(min)
+            time.sleep(1)
 
         #Input comments data
         in_comments.clear()
@@ -110,8 +151,12 @@ def update_tags(entry_id):
     request = Request(endpoint, data=binary_data, headers=toggl.headers, method='PUT')
     urlopen(request)
 
-for record in source_info:
-    fill_form(record['description'], record['start'], record['dur'], record['tags'])
-    update_tags(record['id'])
+if (runFromReport):
+    for row in source_info.itertuples():
+        fill_form(row.Description, row.Date, row.Duration, row.Tags.split(', '))
+else:
+    for record in source_info:
+        fill_form(record['description'], record['start'], record['dur'], record['tags'])
+        # update_tags(record['id'])
 
 print("Procedure Completed.")
