@@ -6,6 +6,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support import expected_conditions as EC
 from urllib.request import urlopen, Request
+from datetime import date, timedelta
 import time, glob, os, configparser, sys, json, pprint
 import pandas as PD
 
@@ -23,10 +24,15 @@ config.read("config.ini")
 toggl = Toggl()
 toggl.setAPIKey(config['DEFAULT']['TogglApiKey'])
 workspace_id = toggl.request("https://api.track.toggl.com/api/v8/workspaces")[0]['id']
+if (int(config['DEFAULT']['ReportHistory']) < 0 or int(config['DEFAULT']['ReportHistory']) > 365):
+    print("Report History must be between 0 and 365. Setting default to 6.")
+    history = date.today() - timedelta(days=6)
+else:
+    history = date.today() - timedelta(days=int(config['DEFAULT']['ReportHistory']))
 
 #Create dict object to store URLs for API calls/Selenium
 urls = {
-    'source_info' : str("https://api.track.toggl.com/reports/api/v2/details?workspace_id=%s&user_agent=%s") % (workspace_id, config['DEFAULT']['TogglEmail']),
+    'source_info' : str("https://api.track.toggl.com/reports/api/v2/details?workspace_id=%s&since=%s&user_agent=%s") % (workspace_id, history ,config['DEFAULT']['TogglEmail']),
     'service_now' : r'https://liberty.service-now.com/task_time_worked.do?sys_id=-1&sysparm_stack=task_time_worked_list.do',
     'time_entries' : r'https://api.track.toggl.com/api/v8/time_entries'
 }
