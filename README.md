@@ -4,7 +4,9 @@ Automate ServiceNow time tracking
 Pre-launch steps:
 1. Make sure selenium is installed for Python
 2. Update config.ini keys with relevant information (see below)
-3. Edit code and uncomment line 78 - submit.click()
+3. Edit code and uncomment the following lines (145 and 166):
+- submit.click()
+- update_tags(record['id'])
 
 
 Config.ini keys:
